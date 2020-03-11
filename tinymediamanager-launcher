@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Ugly workaround for tinyMediaManager wanting to write into its own directory. It's cool that you can run it portable like this but it's horrible for trying to run in a sandbox like flatpak!
+
+cp -r /app/tmm /tmp || exit 1
+
+cd /tmp/tmm || exit 1
+
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME}/.cache}"
+
+mkdir -p "${XDG_CONFIG_HOME}/org.tinymediamanager.TinyMediaManager"
+mkdir -p "${XDG_CACHE_HOME}/org.tinymediamanager.TinyMediaManager"
+
+ln -s "${XDG_CACHE_HOME}/org.tinymediamanager.TinyMediaManager" cache
+
+for d in backup data logs 
+do
+	mkdir -p "${XDG_CONFIG_HOME}/org.tinymediamanager.TinyMediaManager/${d}"
+	ln -s "${XDG_CONFIG_HOME}/org.tinymediamanager.TinyMediaManager/${d}" .
+done
+
+exec ./tinyMediaManager.sh "$@"
